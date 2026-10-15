@@ -1,0 +1,84 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}{{ assignment.title }} — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container page-head__row">
+    <div>
+      <span class="section__kicker">// задание</span>
+      <h1>{{ assignment.title }}</h1>
+      <div class="list-item__meta">
+        {% if assignment.module %}<span>модуль: {{ assignment.module.title }}</span>{% endif %}
+        <span>макс. балл: {{ assignment.max_score }}</span>
+        {% if assignment.deadline %}<span>дедлайн: {{ assignment.deadline|date:"d.m.Y H:i" }}</span>{% endif %}
+      </div>
+    </div>
+    <a class="btn btn--ghost btn--sm" href="{% url 'homework:assignment_list' %}">К списку</a>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="dash-grid">
+      <div>
+        <div class="panel">
+          <h2 class="panel__title">Описание задания</h2>
+          <p style="white-space:pre-line">{{ assignment.description }}</p>
+        </div>
+
+        {% if submission and review %}
+          <div class="panel">
+            <h2 class="panel__title">Результат проверки</h2>
+            <div class="feedback">
+              <div class="feedback__score">{{ review.score }} / {{ assignment.max_score }} баллов</div>
+              <p style="white-space:pre-line;margin:0">{{ review.feedback }}</p>
+            </div>
+            <p class="muted small" style="margin-top:12px">
+              Проверил: {{ review.reviewer.display_name|default:"преподаватель" }} · {{ review.updated_at|date:"d.m.Y H:i" }}
+            </p>
+          </div>
+        {% endif %}
+
+        {% if submission and not review %}
+          <div class="panel">
+            <h2 class="panel__title">Статус работы</h2>
+            <p>Работа загружена {{ submission.submitted_at|date:"d.m.Y H:i" }} и ожидает проверки.</p>
+            <span class="badge badge--submitted">на проверке</span>
+          </div>
+        {% endif %}
+
+        {% if submission %}
+          {% include "homework/_thread.html" %}
+        {% endif %}
+      </div>
+
+      <div class="panel">
+        <h2 class="panel__title">{% if submission %}Обновить работу{% else %}Загрузить работу{% endif %}</h2>
+        <form class="form" method="post" enctype="multipart/form-data" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="form__error">{{ form.non_field_errors }}</div>
+          {% endif %}
+          {% include "partials/field.html" with field=form.file %}
+          {% include "partials/field.html" with field=form.comment %}
+          <button class="btn btn--block" type="submit">
+            {% if submission %}Заменить и отправить{% else %}Отправить на проверку{% endif %}
+          </button>
+          <span class="form__help">Допустимые форматы: архивы, код, документы и изображения. До {{ homework_max_upload }}.</span>
+        </form>
+
+        {% if submission %}
+          <div class="contact-item" style="margin-top:18px;border-top:1px dashed var(--green-line);padding-top:16px">
+            <span class="contact-item__icon">&gt;</span>
+            <div>
+              <span class="contact-item__label">Текущий файл</span>
+              <a class="contact-item__value" href="{% url 'homework:download_submission' submission.pk %}">{{ submission.file.name }}</a>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,8 @@
+# CodeHub — production dependencies
+Django==6.1.2
+gunicorn==26.2.0
+Pillow==12.3.0
+whitenoise==6.12.0
+
+# PostgreSQL driver (needed when DATABASE_URL / POSTGRES_* is used).
+psycopg[binary]>=3.2,<4

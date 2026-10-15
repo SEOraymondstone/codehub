@@ -1,0 +1,61 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}Управление заданиями — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container page-head__row">
+    <div>
+      <span class="section__kicker">// администрирование курса</span>
+      <h1>Домашние задания</h1>
+      <p class="muted">Создавайте и редактируйте задания для студентов.</p>
+    </div>
+    <div class="hero__actions" style="margin:0">
+      <a class="btn btn--sm" href="{% url 'homework:assignment_create' %}">+ Новое задание</a>
+      <a class="btn btn--ghost btn--sm" href="{% url 'dashboard:teacher' %}">В кабинет</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    {% if assignments %}
+      <div class="table-wrap">
+        <table class="data">
+          <thead>
+            <tr><th>#</th><th>Задание</th><th>Модуль</th><th>Сдано</th><th>Средний балл</th><th>Статус</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for assignment in assignments %}
+              <tr>
+                <td class="mono">{{ assignment.order }}</td>
+                <td>{{ assignment.title }}</td>
+                <td class="muted">{{ assignment.module.title|default:"—" }}</td>
+                <td>{{ assignment.submission_total }}</td>
+                <td>{% if assignment.average_score %}<span class="score">{{ assignment.average_score|floatformat:1 }}</span>{% else %}<span class="score score--muted">—</span>{% endif %}</td>
+                <td>
+                  {% if assignment.is_published %}
+                    <span class="badge badge--reviewed">опубликовано</span>
+                  {% else %}
+                    <span class="badge badge--muted">черновик</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a class="btn btn--ghost btn--sm" href="{% url 'homework:assignment_edit' assignment.pk %}">Изменить</a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <div class="empty">Заданий пока нет. <a href="{% url 'homework:assignment_create' %}">Создайте первое задание</a>.</div>
+    {% endif %}
+
+    <p class="muted small" style="margin-top:18px">
+      Модули курса: {{ modules_total }}. Управлять модулями и заявками можно в
+      <a href="/admin/">административной панели</a>.
+    </p>
+  </div>
+</section>
+{% endblock %}

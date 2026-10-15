@@ -1,0 +1,98 @@
+{% load static %}<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site_info.name }} — онлайн-курс программирования{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}{{ site_info.tagline }}. Стоимость от {{ site_info.price_from }}.{% endblock %}">
+  <meta name="theme-color" content="#f4f6f2">
+  <link rel="canonical" href="{{ request.build_absolute_uri }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ site_info.name }}">
+  <meta property="og:locale" content="ru_RU">
+  <meta property="og:title" content="{% block og_title %}{{ site_info.name }} — онлайн-курс программирования{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}{{ site_info.tagline }}{% endblock %}">
+  <meta property="og:url" content="{{ request.build_absolute_uri }}">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231f7a4d'/%3E%3Ctext x='8' y='23' font-family='Arial' font-size='18' font-weight='bold' fill='%23fff'%3EC%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="{% static 'css/public.css' %}">
+  {% block extra_css %}{% endblock %}
+  {% block extra_head %}{% endblock %}
+  <script>document.documentElement.classList.add("js");</script>
+</head>
+<body class="{% block body_class %}theme-public{% endblock %}">
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="{% url 'pages:landing' %}">
+        <span class="brand__mark">C</span>{{ site_info.name }}
+      </a>
+
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-nav-toggle>
+        <span></span><span></span><span></span>
+        <span class="sr-only">Меню</span>
+      </button>
+
+      <nav class="nav" id="site-nav" data-nav>
+        <a href="{% url 'pages:landing' %}#program">Программа</a>
+        <a href="{% url 'pages:guide' %}">Как учиться</a>
+        <a href="{% url 'pages:landing' %}#format">Формат</a>
+        <a href="{% url 'pages:landing' %}#pricing">Стоимость</a>
+        <a href="{% url 'pages:landing' %}#faq">Вопросы</a>
+        <a href="{% url 'pages:landing' %}#contacts">Контакты</a>
+        {% if user.is_authenticated %}
+          <a class="nav__cta" href="{% url 'dashboard:home' %}">Личный кабинет</a>
+        {% else %}
+          <a href="{% url 'accounts:login' %}">Вход</a>
+          <a class="btn btn--sm" href="{% url 'accounts:register' %}">Записаться</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {% if messages %}
+      <div class="container alerts">
+        {% for message in messages %}
+          <div class="alert alert--{{ message.tags|default:'info' }}" role="status">{{ message }}</div>
+        {% endfor %}
+      </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div>
+        <p class="footer__brand">{{ site_info.name }}</p>
+        <p>{{ site_info.tagline }}</p>
+        <p>Помогаем школьникам и начинающим освоить программирование с нуля.</p>
+      </div>
+      <div class="footer__cols">
+        <div>
+          <p class="footer__title">Связаться</p>
+          <a href="{% url 'pages:guide' %}">Как учиться</a>
+          <a href="{% url 'pages:privacy' %}">Политика конфиденциальности</a>
+          <a href="tel:{{ site_info.phone }}">{{ site_info.phone }}</a>
+          <a href="tel:{{ site_info.phone_secondary }}">{{ site_info.phone_secondary }}</a>
+          <a href="mailto:{{ site_info.email }}">{{ site_info.email }}</a>
+        </div>
+        <div>
+          <p class="footer__title">Мы в соцсетях</p>
+          {% if site_info.telegram %}<a href="{{ site_info.telegram }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
+          {% if site_info.whatsapp %}<a href="{{ site_info.whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+          {% if site_info.instagram %}<a href="{{ site_info.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+          {% if site_info.youtube %}<a href="{{ site_info.youtube }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
+          {% if site_info.github %}<a href="{{ site_info.github }}" target="_blank" rel="noopener">GitHub</a>{% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <span>© {% now "Y" %} {{ site_info.name }}. Все права защищены.</span>
+      <span>Личный кабинет для учеников и преподавателя</span>
+    </div>
+  </footer>
+
+  <script src="{% static 'js/app.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

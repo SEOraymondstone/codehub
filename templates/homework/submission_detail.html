@@ -1,0 +1,84 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}Проверка: {{ submission.assignment.title }} — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container page-head__row">
+    <div>
+      <span class="section__kicker">// проверка работы</span>
+      <h1>{{ submission.assignment.title }}</h1>
+      <div class="list-item__meta">
+        <span>студент: {{ submission.student.display_name }}</span>
+        <span>отправлено: {{ submission.submitted_at|date:"d.m.Y H:i" }}</span>
+        <span>макс. балл: {{ submission.assignment.max_score }}</span>
+      </div>
+    </div>
+    <a class="btn btn--ghost btn--sm" href="{% url 'homework:submission_list' %}">К списку работ</a>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="dash-grid">
+      <div>
+        <div class="panel">
+          <h2 class="panel__title">Работа студента</h2>
+          <div class="contact-item" style="border-bottom:0;padding-top:0">
+            <span class="contact-item__icon">&gt;</span>
+            <div>
+              <span class="contact-item__label">Файл</span>
+              <a class="contact-item__value" href="{% url 'homework:download_submission' submission.pk %}">Скачать {{ submission.file.name }}</a>
+            </div>
+          </div>
+          {% if submission.comment %}
+            <h3 class="card__title" style="margin-top:16px">Комментарий студента</h3>
+            <p class="muted" style="white-space:pre-line">{{ submission.comment }}</p>
+          {% endif %}
+        </div>
+
+        <div class="panel">
+          <h2 class="panel__title">Задание</h2>
+          <p style="white-space:pre-line">{{ submission.assignment.description }}</p>
+          {% if submission.assignment.module %}
+            <p class="muted small">Модуль: {{ submission.assignment.module.title }}</p>
+          {% endif %}
+        </div>
+
+        {% include "homework/_thread.html" %}
+      </div>
+
+      <div class="panel">
+        <h2 class="panel__title">{% if review %}Обновить проверку{% else %}Выставить оценку{% endif %}</h2>
+        <form class="form" method="post" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}
+            <div class="form__error">{{ form.non_field_errors }}</div>
+          {% endif %}
+          {% include "partials/field.html" with field=form.score %}
+          {% include "partials/field.html" with field=form.feedback %}
+          <div class="form__field">
+            <label class="form__label" for="status">Статус работы</label>
+            <select class="input" id="status" name="status">
+              {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if submission.status == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button class="btn btn--block" type="submit">Сохранить проверку</button>
+          {% if next_pending %}
+            <button class="btn btn--ghost btn--block" type="submit" name="next_submission" value="1">
+              Сохранить и проверить следующую
+            </button>
+            <span class="form__help">
+              Следующая в очереди: {{ next_pending.student.display_name }} — {{ next_pending.assignment.title }}.
+            </span>
+          {% else %}
+            <span class="form__help">Студент получит уведомление с баллом и обратной связью.</span>
+          {% endif %}
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

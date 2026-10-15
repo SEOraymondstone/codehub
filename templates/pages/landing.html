@@ -1,0 +1,427 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ site_info.name }} — онлайн-курс программирования для школьников и начинающих{% endblock %}
+{% block meta_description %}{{ site_info.tagline }}. Программа, форматы занятий, стоимость от {{ site_info.price_from }} и контакты для родителей.{% endblock %}
+{% block og_title %}{{ site_info.name }} — онлайн-курс программирования для школьников и начинающих{% endblock %}
+{% block og_description %}{{ site_info.tagline }}. Стоимость от {{ site_info.price_from }}.{% endblock %}
+
+{% block extra_head %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "name": "{{ site_info.name|escapejs }} — онлайн-курс программирования",
+  "description": "{{ site_info.tagline|escapejs }}",
+  "inLanguage": "ru",
+  "provider": {
+    "@type": "EducationalOrganization",
+    "name": "{{ site_info.name|escapejs }}",
+    "url": "{{ request.build_absolute_uri|escapejs }}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "{{ site_info.price_from|cut:"$" }}",
+    "priceCurrency": "USD",
+    "category": "Paid",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/public-extras.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- ============================ HERO ============================ -->
+<section class="hero hero--fancy">
+  <div class="container hero__grid">
+    <div data-reveal>
+      <span class="eyebrow">Онлайн-курс для школьников и взрослых с нуля</span>
+      <h1 class="hero__title">
+        {{ site_info.hero_title }} <span class="accent">{{ site_info.hero_accent }}</span>
+      </h1>
+      <p class="hero__lead">
+        {{ site_info.hero_subtitle|default:site_info.tagline }}
+      </p>
+
+      <div class="hero__price">
+        <span class="from">стоимость обучения —</span>
+        <span class="value">от {{ site_info.price_from }}</span>
+      </div>
+
+      <div class="hero__actions">
+        <a class="btn" href="#hero-form">Оставить заявку</a>
+        <a class="btn btn--ghost" href="#program">Смотреть программу</a>
+      </div>
+
+      <ul class="hero__points">
+        <li>Живые занятия с преподавателем и запись уроков</li>
+        <li>Домашние задания проверяет преподаватель, а не робот</li>
+        <li>Родители видят прогресс и оценки в личном кабинете</li>
+      </ul>
+    </div>
+
+    <div class="form-card hero-form" id="hero-form" data-reveal>
+      <h3 class="form-card__title">Записаться на курс</h3>
+      <p class="muted small form-card__note">Оставьте контакты — расскажем о программе и ближайшем потоке. Это бесплатно.</p>
+
+      <form class="form" method="post" action="{% url 'pages:landing' %}#hero-form" novalidate>
+        {% csrf_token %}
+        {{ lead_form.website }}
+        <input type="hidden" name="source" value="hero">
+        {% if lead_form.non_field_errors %}
+          <div class="form__error">{{ lead_form.non_field_errors }}</div>
+        {% endif %}
+        {% include "partials/field.html" with field=lead_form.name %}
+        <div class="form__row">
+          {% include "partials/field.html" with field=lead_form.phone %}
+          {% include "partials/field.html" with field=lead_form.email %}
+        </div>
+        <button class="btn btn--block" type="submit" name="lead_submit" value="1">Получить консультацию</button>
+        <span class="form__help">Нажимая кнопку, вы соглашаетесь на обработку персональных данных.</span>
+      </form>
+    </div>
+  </div>
+
+  {% if stats %}
+    <div class="container">
+      <div class="stat-strip" data-reveal>
+        {% for stat in stats %}
+          <div class="stat">
+            <span class="stat__value" data-counter="{{ stat.value }}">{{ stat.value }}</span>
+            <span class="stat__label">{{ stat.label }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</section>
+
+<!-- ============================ ТЕХНОЛОГИИ ============================ -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__track">
+    <span>Python</span><span>Django</span><span>Git &amp; GitHub</span><span>SQL</span>
+    <span>HTML</span><span>CSS</span><span>Алгоритмы</span><span>Портфолио</span>
+    <span>Python</span><span>Django</span><span>Git &amp; GitHub</span><span>SQL</span>
+    <span>HTML</span><span>CSS</span><span>Алгоритмы</span><span>Портфолио</span>
+  </div>
+</div>
+
+<!-- ========================== ПОЧЕМУ МЫ ========================== -->
+{% if advantages %}
+<section class="section" id="advantages">
+  <div class="container">
+    <div class="section__head center">
+      <span class="section__kicker">Почему родители выбирают нас</span>
+      <h2>Понятный путь от новичка до первого проекта</h2>
+      <p class="muted">Мы объясняем сложные вещи простым языком и держим связь с семьёй на каждом этапе.</p>
+    </div>
+    <div class="grid grid--4">
+      {% for advantage in advantages %}
+        <article class="card glow-card" data-reveal>
+          <div class="card__icon">{{ advantage.icon|default:forloop.counter }}</div>
+          <h3>{{ advantage.title }}</h3>
+          <p class="muted">{{ advantage.text }}</p>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============================ ПРОГРАММА ============================ -->
+<section class="section section--tint" id="program">
+  <div class="container">
+    <div class="section__head center">
+      <span class="section__kicker">Программа обучения</span>
+      <h2>Чему научится ученик</h2>
+      <p class="muted">Пошаговая программа от основ программирования до собственного проекта в портфолио.</p>
+    </div>
+
+    <div class="timeline">
+      {% for module in modules %}
+        <article class="module" data-reveal>
+          <div class="module__index">{{ module.order|stringformat:"02d" }}</div>
+          <div>
+            <h3>{{ module.title }}</h3>
+            <p class="muted">{{ module.summary }}</p>
+            {% if module.duration %}
+              <div class="module__meta"><span>Срок модуля: {{ module.duration }}</span></div>
+            {% endif %}
+            {% if module.topic_list %}
+              <ul class="module__topics">
+                {% for topic in module.topic_list %}<li>{{ topic }}</li>{% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        </article>
+      {% empty %}
+        <div class="card center">
+          <p class="muted">Программа курса скоро появится. Оставьте заявку — сообщим о старте набора.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================== ФОРМАТ ============================== -->
+<section class="section" id="format">
+  <div class="container">
+    <div class="section__head center">
+      <span class="section__kicker">Как проходят занятия</span>
+      <h2>Формат, удобный для семьи</h2>
+    </div>
+    <div class="grid grid--3">
+      <article class="card glow-card" data-reveal>
+        <div class="card__icon">A</div>
+        <h3>Онлайн-уроки 2 раза в неделю</h3>
+        <p class="muted">Преподаватель объясняет тему, ученик выполняет практические задания прямо на уроке. Длительность — 60–90 минут.</p>
+      </article>
+      <article class="card glow-card" data-reveal>
+        <div class="card__icon">B</div>
+        <h3>Домашние задания с проверкой</h3>
+        <p class="muted">Работы загружаются в личный кабинет. Преподаватель проверяет код, ставит балл и пишет развёрнутый комментарий.</p>
+      </article>
+      <article class="card glow-card" data-reveal>
+        <div class="card__icon">C</div>
+        <h3>Записи и материалы</h3>
+        <p class="muted">Все уроки и конспекты остаются в доступе, поэтому пропущенную тему всегда можно догнать без стресса.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== ЖИВОЙ КОД ============================== -->
+<section class="section section--tint" id="code">
+  <div class="container">
+    <div class="contact-grid">
+      <div data-reveal>
+        <span class="section__kicker">Живой код</span>
+        <h2>Учимся на реальном коде</h2>
+        <p class="muted">
+          Никакой «теории ради теории»: каждый урок заканчивается кодом, который ученик
+          пишет сам. Преподаватель разбирает решение построчно и подсказывает, как сделать лучше.
+        </p>
+        <ul class="hero__points" style="margin-top:20px">
+          <li>Разбор кода каждого ученика в личном кабинете</li>
+          <li>Домашние задания приближены к реальным задачам</li>
+          <li>Постепенное усложнение без перегрузки</li>
+        </ul>
+      </div>
+
+      <div class="code-window" data-reveal>
+        <div class="code-window__bar">
+          <span class="code-window__dot code-window__dot--r"></span>
+          <span class="code-window__dot code-window__dot--y"></span>
+          <span class="code-window__dot code-window__dot--g"></span>
+          <span class="code-window__title">student.py — первый проект</span>
+        </div>
+<pre class="code-body" data-typing>class Student:
+    def __init__(self, name):
+        self.name = name
+        self.done = 0
+
+    def submit(self, task):
+        self.done += 1
+        return f"{self.name}: сдано {self.done} заданий"
+
+coder = Student("Мария")
+print(coder.submit("ДЗ №1"))</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ПРЕПОДАВАТЕЛЬ ============================ -->
+{% if teachers %}
+<section class="section" id="teachers">
+  <div class="container">
+    <div class="section__head center">
+      <span class="section__kicker">Кто ведёт курс</span>
+      <h2>Преподаватель, который на связи</h2>
+    </div>
+    <div class="grid grid--2">
+      {% for teacher in teachers %}
+        <article class="card teacher-card" data-reveal>
+          {% if teacher.photo %}
+            <img class="teacher-avatar" src="{{ teacher.photo.url }}" alt="{{ teacher.name }}">
+          {% else %}
+            <div class="teacher-avatar">{{ teacher.initials }}</div>
+          {% endif %}
+          <div>
+            <h3>{{ teacher.name }}</h3>
+            <p class="muted small">{{ teacher.title }}</p>
+            <p class="muted">{{ teacher.bio }}</p>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============================== ОТЗЫВЫ ============================== -->
+{% if testimonials %}
+<section class="section section--tint" id="reviews">
+  <div class="container">
+    <div class="section__head center">
+      <span class="section__kicker">Отзывы</span>
+      <h2>Что говорят ученики и родители</h2>
+    </div>
+    <div class="grid grid--3">
+      {% for review in testimonials %}
+        <article class="card testimonial" data-reveal>
+          <p class="testimonial__text">{{ review.text }}</p>
+          <div class="testimonial__author">
+            <span class="testimonial__avatar">{{ review.author|slice:":1" }}</span>
+            <span>
+              <span class="testimonial__name">{{ review.author }}</span><br>
+              <span class="testimonial__role">{{ review.role }}</span>
+            </span>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============================== ЦЕНЫ ============================== -->
+{% if plans %}
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section__head center">
+      <span class="section__kicker">Стоимость</span>
+      <h2>Прозрачные тарифы без скрытых платежей</h2>
+      <p class="muted">Начальная стоимость — от {{ site_info.price_from }}. Рассрочка и скидки для групп обсуждаются индивидуально.</p>
+    </div>
+
+    <div class="grid grid--3">
+      {% for plan in plans %}
+        <article class="card pricing-card {% if plan.is_featured %}pricing-card--featured{% endif %}" data-reveal>
+          {% if plan.is_featured and plan.badge %}<span class="pricing-card__badge">{{ plan.badge }}</span>{% endif %}
+          <h3>{{ plan.name }}</h3>
+          <div class="pricing-card__price">{{ plan.price }}</div>
+          <div class="pricing-card__period">{{ plan.period }}</div>
+          <ul>
+            {% for feature in plan.feature_list %}<li>{{ feature }}</li>{% endfor %}
+          </ul>
+          <a class="btn {% if not plan.is_featured %}btn--ghost{% endif %} btn--block" href="#hero-form">{{ plan.button_text }}</a>
+        </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ================================ FAQ ================================ -->
+{% if faqs %}
+<section class="section section--tint" id="faq">
+  <div class="container">
+    <div class="section__head center">
+      <span class="section__kicker">Частые вопросы</span>
+      <h2>Что важно знать родителям</h2>
+    </div>
+
+    <div class="faq">
+      {% for item in faqs %}
+        <details data-reveal>
+          <summary>{{ item.question }}</summary>
+          <p>{{ item.answer }}</p>
+        </details>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- ============================ КОНТАКТЫ ============================ -->
+<section class="section" id="contacts">
+  <div class="container">
+    <div class="section__head">
+      <span class="section__kicker">Контакты и связь</span>
+      <h2>Задайте вопрос организатору</h2>
+      <p class="muted">Позвоните, напишите в мессенджер или оставьте сообщение — ответим в течение рабочего дня.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div data-reveal>
+        <div class="contact-item">
+          <span class="contact-item__icon">☎</span>
+          <div>
+            <span class="contact-item__label">Телефон</span>
+            <a class="contact-item__value" href="tel:{{ site_info.phone }}">{{ site_info.phone }}</a>
+          </div>
+        </div>
+        {% if site_info.phone_secondary %}
+          <div class="contact-item">
+            <span class="contact-item__icon">☎</span>
+            <div>
+              <span class="contact-item__label">Дополнительный телефон</span>
+              <a class="contact-item__value" href="tel:{{ site_info.phone_secondary }}">{{ site_info.phone_secondary }}</a>
+            </div>
+          </div>
+        {% endif %}
+        <div class="contact-item">
+          <span class="contact-item__icon">@</span>
+          <div>
+            <span class="contact-item__label">Email</span>
+            <a class="contact-item__value" href="mailto:{{ site_info.email }}">{{ site_info.email }}</a>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item__icon">↗</span>
+          <div>
+            <span class="contact-item__label">Социальные сети</span>
+            <div class="socials">
+              {% if site_info.telegram %}<a href="{{ site_info.telegram }}" target="_blank" rel="noopener">Telegram</a>{% endif %}
+              {% if site_info.whatsapp %}<a href="{{ site_info.whatsapp }}" target="_blank" rel="noopener">WhatsApp</a>{% endif %}
+              {% if site_info.instagram %}<a href="{{ site_info.instagram }}" target="_blank" rel="noopener">Instagram</a>{% endif %}
+              {% if site_info.youtube %}<a href="{{ site_info.youtube }}" target="_blank" rel="noopener">YouTube</a>{% endif %}
+              {% if site_info.github %}<a href="{{ site_info.github }}" target="_blank" rel="noopener">GitHub</a>{% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card" data-reveal>
+        <h3 class="form-card__title">Написать нам</h3>
+        <p class="muted small form-card__note">Опишите ситуацию — подскажем подходящий тариф и расписание.</p>
+        <form class="form" method="post" action="{% url 'pages:landing' %}#contacts" novalidate>
+          {% csrf_token %}
+          {% if contact_form.non_field_errors %}
+            <div class="form__error">{{ contact_form.non_field_errors }}</div>
+          {% endif %}
+          <div class="form__row">
+            {% include "partials/field.html" with field=contact_form.name %}
+            {% include "partials/field.html" with field=contact_form.email %}
+          </div>
+          {% include "partials/field.html" with field=contact_form.subject %}
+          {% include "partials/field.html" with field=contact_form.message %}
+          <button class="btn btn--block" type="submit" name="contact_submit" value="1">Отправить сообщение</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CTA ============================== -->
+<section class="section section--tint">
+  <div class="container">
+    <div class="card center" data-reveal style="padding:48px">
+      <h2>Готовы начать обучение?</h2>
+      <p class="muted">Оставьте заявку — расскажем о ближайшем потоке, расписании и поможем выбрать тариф.</p>
+      <div class="hero__actions" style="justify-content:center;margin-bottom:0">
+        <a class="btn" href="#hero-form">Оставить заявку</a>
+        <a class="btn btn--ghost" href="{% url 'pages:guide' %}">Как учиться</a>
+        {% if not user.is_authenticated %}
+          <a class="btn btn--ghost" href="{% url 'accounts:register' %}">Создать личный кабинет</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

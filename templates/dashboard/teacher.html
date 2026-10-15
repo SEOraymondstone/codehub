@@ -1,0 +1,156 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}Кабинет преподавателя — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container page-head__row">
+    <div>
+      <span class="section__kicker">// кабинет преподавателя</span>
+      <h1>Проверка работ</h1>
+      <p class="muted">Все загруженные домашние задания студентов в одном месте.</p>
+    </div>
+    <div class="hero__actions" style="margin:0">
+      {% if next_pending %}
+        <a class="btn btn--sm" href="{% url 'homework:submission_detail' next_pending.pk %}">Проверить следующую</a>
+      {% endif %}
+      <a class="btn btn--ghost btn--sm" href="{% url 'homework:assignment_create' %}">+ Новое задание</a>
+      <a class="btn btn--ghost btn--sm" href="{% url 'homework:manage_assignments' %}">Задания</a>
+      {% if user.is_staff %}
+        <a class="btn btn--ghost btn--sm" href="{% url 'admin:courses_lead_changelist' %}">Заявки</a>
+        <a class="btn btn--ghost btn--sm" href="{% url 'admin:index' %}">Админка</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:16px">
+  <div class="container">
+    {% if unread_total %}
+      <div class="alert alert--info" role="status">
+        Вопросов от студентов без ответа: {{ unread_total }}. Откройте работу и ответьте в обсуждении.
+      </div>
+    {% endif %}
+
+    {% if next_pending %}
+      <div class="focus focus--action">
+        <div class="focus__body">
+          <span class="focus__label">Очередь проверки</span>
+          <p class="focus__title">{{ next_pending.student.display_name }} — {{ next_pending.assignment.title }}</p>
+          <p class="focus__text">Сдано {{ next_pending.submitted_at|date:"d.m.Y H:i" }}. Проверьте работу и переходите к следующей одной кнопкой.</p>
+        </div>
+        <a class="btn" href="{% url 'homework:submission_detail' next_pending.pk %}">Проверить</a>
+      </div>
+    {% endif %}
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-card__value">{{ stats.students }}</div>
+        <div class="stat-card__label">Активных студентов</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value">{{ stats.submissions }}</div>
+        <div class="stat-card__label">Всего работ</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value">{{ stats.pending }}</div>
+        <div class="stat-card__label">Ждут проверки</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value">{{ stats.leads_new }}</div>
+        <div class="stat-card__label">Новых заявок</div>
+      </div>
+    </div>
+
+    <h2>Работы студентов</h2>
+
+    <form class="filters" method="get">
+      <div class="form__field">
+        <label class="form__label" for="filter-status">Статус</label>
+        <select class="input" id="filter-status" name="status">
+          <option value="">Все статусы</option>
+          {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form__field">
+        <label class="form__label" for="filter-assignment">Задание</label>
+        <select class="input" id="filter-assignment" name="assignment">
+          <option value="">Все задания</option>
+          {% for assignment in assignments %}
+            <option value="{{ assignment.pk }}" {% if current_assignment == assignment.pk|stringformat:"s" %}selected{% endif %}>{{ assignment.title }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form__field">
+        <label class="form__label" for="filter-q">Поиск</label>
+        <input class="input" id="filter-q" type="text" name="q" value="{{ query }}" placeholder="Студент или задание">
+      </div>
+      <button class="btn btn--sm" type="submit">Применить</button>
+      <a class="btn btn--ghost btn--sm" href="{% url 'dashboard:teacher' %}">Сбросить</a>
+      <a class="btn btn--ghost btn--sm" href="?status=submitted">Ждут проверки</a>
+    </form>
+
+    {% if submissions %}
+      <div class="table-wrap only-desktop">
+        <table class="data">
+          <thead>
+            <tr>
+              <th>Студент</th>
+              <th>Задание</th>
+              <th>Отправлено</th>
+              <th>Статус</th>
+              <th>Балл</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for submission in submissions %}
+              <tr>
+                <td>
+                  {{ submission.student.display_name }}
+                  {% if submission.pk in unread_ids %}<span class="badge badge--unread">вопрос</span>{% endif %}
+                </td>
+                <td>{{ submission.assignment.title }}</td>
+                <td class="muted nowrap">{{ submission.submitted_at|date:"d.m.Y H:i" }}</td>
+                <td><span class="badge badge--{{ submission.status }}">{{ submission.get_status_display }}</span></td>
+                <td>
+                  {% if submission.review %}
+                    <span class="score">{{ submission.review.score }}/{{ submission.assignment.max_score }}</span>
+                  {% else %}<span class="score score--muted">—</span>{% endif %}
+                </td>
+                <td><a class="btn btn--sm" href="{% url 'homework:submission_detail' submission.pk %}">Проверить</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="list only-mobile">
+        {% for submission in submissions %}
+          <article class="list-item">
+            <div class="list-item__head">
+              <h3 class="list-item__title">{{ submission.student.display_name }}</h3>
+              <div class="list-item__flags">
+                {% if submission.pk in unread_ids %}<span class="badge badge--unread">вопрос</span>{% endif %}
+                <span class="badge badge--{{ submission.status }}">{{ submission.get_status_display }}</span>
+              </div>
+            </div>
+            <div class="list-item__meta">
+              <span>{{ submission.assignment.title }}</span>
+              <span>{{ submission.submitted_at|date:"d.m.Y H:i" }}</span>
+              {% if submission.review %}<span>балл: {{ submission.review.score }}/{{ submission.assignment.max_score }}</span>{% endif %}
+            </div>
+            <div class="list-item__actions">
+              <a class="btn btn--sm btn--block" href="{% url 'homework:submission_detail' submission.pk %}">Проверить</a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">Работ пока нет. Как только студент загрузит задание, оно появится здесь.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

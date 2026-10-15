@@ -1,0 +1,59 @@
+/* ==========================================================================
+   Тёмная тема публичной части — страница ознакомления.
+   Переопределяет переменные public.css для body.theme-public--dark.
+   ========================================================================== */
+
+body.theme-public--dark {
+  --bg: #0e1216;
+  --surface: #161c22;
+  --surface-2: #1a2128;
+  --ink: #eef3ef;
+  --ink-soft: #c3cdc7;
+  --muted: #8b968f;
+  --line: #29323a;
+  --accent: #3ddc84;
+  --accent-strong: #7bf0ad;
+  --accent-soft: rgba(61, 220, 132, 0.12);
+  --amber: #e0a94a;
+  --amber-soft: rgba(224, 169, 74, 0.14);
+  --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+  --shadow: 0 16px 44px rgba(0, 0, 0, 0.5);
+}
+
+body.theme-public--dark .topbar { background: rgba(14, 18, 22, 0.92); }
+body.theme-public--dark .nav-toggle { background: var(--surface); }
+body.theme-public--dark .nav-toggle span:not(.sr-only) { background: var(--ink); }
+body.theme-public--dark .brand { color: var(--ink); }
+body.theme-public--dark .brand:hover { color: var(--ink); }
+body.theme-public--dark .brand__mark { color: #07130d; }
+body.theme-public--dark .btn { color: #07130d; }
+body.theme-public--dark .btn:hover { color: #07130d; }
+body.theme-public--dark .btn--ghost { color: var(--accent); }
+body.theme-public--dark .btn--ghost:hover { color: var(--accent-strong); }
+body.theme-public--dark .pricing-card__badge { color: #07130d; }
+body.theme-public--dark .footer { background: #090c0f; }
+body.theme-public--dark .socials a { background: var(--surface); }
+body.theme-public--dark ::placeholder { color: #6f7a73; }
+body.theme-public--dark input,
+body.theme-public--dark textarea,
+body.theme-public--dark select { background: #12171c; }
+
+/* Пошаговый список на странице ознакомления */
+.guide-step__tag {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.guide-note {
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}

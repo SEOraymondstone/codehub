@@ -1,0 +1,32 @@
+[Unit]
+Description=CodeHub Django application (gunicorn)
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=notify
+User=codehub
+Group=www-data
+WorkingDirectory=/srv/codehub/app
+EnvironmentFile=/srv/codehub/app/.env
+RuntimeDirectory=codehub
+RuntimeDirectoryMode=0750
+ExecStart=/srv/codehub/app/.venv/bin/gunicorn codehub.wsgi:application \
+    --bind unix:/run/codehub/codehub.sock \
+    --workers 3 \
+    --threads 2 \
+    --timeout 300 \
+    --access-logfile - \
+    --error-logfile -
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=5
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,66 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}Профиль — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container page-head__row">
+    <div>
+      <span class="section__kicker">// личный кабинет</span>
+      <h1>Профиль</h1>
+      <p class="muted">Данные аккаунта и параметры обучения.</p>
+    </div>
+    <a class="btn btn--ghost btn--sm" href="{% url 'dashboard:home' %}">В кабинет</a>
+  </div>
+</section>
+
+<section class="section" style="padding-top:24px">
+  <div class="container">
+    <div class="dash-grid">
+      <div class="panel">
+        <h2 class="panel__title">Аккаунт</h2>
+        <form class="form" method="post" novalidate>
+          {% csrf_token %}
+          <div class="form__row">
+            {% include "partials/field.html" with field=user_form.first_name %}
+            {% include "partials/field.html" with field=user_form.last_name %}
+          </div>
+          <div class="form__row">
+            {% include "partials/field.html" with field=user_form.email %}
+            {% include "partials/field.html" with field=user_form.phone %}
+          </div>
+          {% include "partials/field.html" with field=user_form.telegram %}
+          {% include "partials/field.html" with field=user_form.bio %}
+          <button class="btn" type="submit" name="save_account" value="1">Сохранить профиль</button>
+        </form>
+      </div>
+
+      <div class="panel">
+        <h2 class="panel__title">Обучение</h2>
+        <form class="form" method="post" novalidate>
+          {% csrf_token %}
+          {% include "partials/field.html" with field=profile_form.level %}
+          {% include "partials/field.html" with field=profile_form.goal %}
+          {% include "partials/field.html" with field=profile_form.enrolled_at %}
+          <button class="btn btn--ghost" type="submit" name="save_study" value="1">Обновить данные</button>
+        </form>
+
+        <div class="contact-item" style="margin-top:20px;border-top:1px dashed var(--green-line);padding-top:16px">
+          <span class="contact-item__icon">&gt;</span>
+          <div>
+            <span class="contact-item__label">Роль</span>
+            <span class="contact-item__value">{{ user.get_role_display }}</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <span class="contact-item__icon">&gt;</span>
+          <div>
+            <span class="contact-item__label">Логин</span>
+            <span class="contact-item__value">{{ user.username }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,119 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}Кабинет студента — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container page-head__row">
+    <div>
+      <span class="section__kicker">// кабинет студента</span>
+      <h1>Привет, {{ user.display_name }}</h1>
+      <p class="muted">Загружайте домашние задания и следите за проверкой.</p>
+    </div>
+    <div class="hero__actions" style="margin:0">
+      <a class="btn btn--sm" href="{% url 'homework:assignment_list' %}">Мои задания</a>
+      <a class="btn btn--ghost btn--sm" href="{% url 'accounts:profile' %}">Профиль</a>
+    </div>
+  </div>
+</section>
+
+<section class="section" style="padding-top:16px">
+  <div class="container">
+    {% if unread_total %}
+      <div class="alert alert--info" role="status">
+        Новых сообщений от преподавателя: {{ unread_total }}. Откройте задание, чтобы прочитать.
+      </div>
+    {% endif %}
+
+    {% if focus %}
+      <div class="focus focus--{{ focus.tone }}">
+        <div class="focus__body">
+          <span class="focus__label">Что дальше</span>
+          <p class="focus__title">{{ focus.title }}</p>
+          <p class="focus__text">{{ focus.text }}</p>
+        </div>
+        {% if focus.url %}<a class="btn" href="{{ focus.url }}">{{ focus.label }}</a>{% endif %}
+      </div>
+    {% endif %}
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-card__value">{{ total }}</div>
+        <div class="stat-card__label">Всего заданий</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value">{{ reviewed }}</div>
+        <div class="stat-card__label">Проверено</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value">{{ pending }}</div>
+        <div class="stat-card__label">На проверке</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card__value">{% if score_max %}{{ score_sum }}/{{ score_max }}{% else %}—{% endif %}</div>
+        <div class="stat-card__label">Суммарный балл</div>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-bottom:28px">
+      <div class="list-item__head">
+        <h2 class="panel__title" style="margin:0">Прогресс курса</h2>
+        <span class="mono">{{ progress }}% · не сдано: {{ not_submitted }}</span>
+      </div>
+      <div class="progress" style="margin-top:14px">
+        <div class="progress__bar" style="width: {{ progress }}%"></div>
+      </div>
+    </div>
+
+    <h2>Домашние задания</h2>
+    {% if rows %}
+      <div class="list">
+        {% for row in rows %}
+          <article class="list-item">
+            <div class="list-item__head">
+              <h3 class="list-item__title">{{ row.assignment.title }}</h3>
+              <div class="list-item__flags">
+                {% if row.has_unread %}<span class="badge badge--unread">новое сообщение</span>{% endif %}
+                {% if row.review %}
+                  <span class="badge badge--reviewed">проверено</span>
+                {% elif row.submission %}
+                  <span class="badge badge--submitted">{{ row.submission.get_status_display }}</span>
+                {% else %}
+                  <span class="badge badge--muted">не сдано</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="list-item__meta">
+              {% if row.assignment.module %}<span>модуль: {{ row.assignment.module.title }}</span>{% endif %}
+              <span>макс. балл: {{ row.assignment.max_score }}</span>
+              {% if row.assignment.deadline %}
+                <span class="{% if row.is_overdue %}text-danger{% endif %}">
+                  дедлайн: {{ row.assignment.deadline|date:"d.m.Y H:i" }}{% if row.is_overdue %} (просрочено){% endif %}
+                </span>
+              {% endif %}
+            </div>
+
+            {% if row.review %}
+              <p class="list-item__feedback">{{ row.review.feedback|truncatechars:200 }}</p>
+            {% elif row.submission %}
+              <p class="muted small">Работа отправлена {{ row.submission.submitted_at|date:"d.m.Y H:i" }} и ждёт проверки.</p>
+            {% endif %}
+
+            <div class="list-item__actions">
+              {% if row.review %}
+                <span class="score">{{ row.review.score }} / {{ row.assignment.max_score }}</span>
+              {% endif %}
+              <a class="btn btn--sm" href="{% url 'homework:assignment_detail' row.assignment.pk %}">
+                {% if row.review %}Результат{% elif row.submission %}Открыть{% else %}Сдать задание{% endif %}
+              </a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">Задания появятся здесь, как только преподаватель их опубликует.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

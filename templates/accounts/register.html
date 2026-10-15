@@ -1,0 +1,29 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}Регистрация студента — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="auth">
+  <div class="container auth__wrap">
+    <div class="auth__head">
+      <span class="eyebrow">// регистрация</span>
+      <h1>Создать аккаунт</h1>
+      <p class="muted">Регистрация открывает доступ к личному кабинету и домашним заданиям.</p>
+    </div>
+
+    <div class="form-card">
+      <form class="form" method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="form__error">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% for field in form %}
+          {% include "partials/field.html" with field=field %}
+        {% endfor %}
+        <button class="btn btn--block" type="submit">Зарегистрироваться</button>
+      </form>
+      <p class="auth__switch">Уже есть аккаунт? <a href="{% url 'accounts:login' %}">Войти</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

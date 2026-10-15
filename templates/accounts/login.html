@@ -1,0 +1,29 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}Вход в личный кабинет — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="auth">
+  <div class="container auth__wrap">
+    <div class="auth__head">
+      <span class="eyebrow">// авторизация</span>
+      <h1>Вход в кабинет</h1>
+      <p class="muted">Личный кабинет CodeHub для студентов и преподавателей.</p>
+    </div>
+
+    <div class="form-card">
+      <form class="form" method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="form__error">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% include "partials/field.html" with field=form.username %}
+        {% include "partials/field.html" with field=form.password %}
+        {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+        <button class="btn btn--block" type="submit">Войти</button>
+      </form>
+      <p class="auth__switch">Нет аккаунта? <a href="{% url 'accounts:register' %}">Зарегистрироваться</a></p>
+    </div>
+  </div>
+</section>
+{% endblock %}

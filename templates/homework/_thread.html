@@ -1,0 +1,25 @@
+{% comment %}Двусторонняя переписка студента и преподавателя по работе.{% endcomment %}
+<div class="panel">
+  <h2 class="panel__title">Обсуждение</h2>
+
+  <div class="thread">
+    {% for message in thread_messages %}
+      <div class="thread__msg {% if message.author == user %}thread__msg--mine{% endif %}">
+        <div class="thread__meta">
+          <span class="thread__author">{{ message.author.display_name|default:"Участник" }}</span>
+          <span>{% if message.is_from_teacher %}преподаватель{% else %}студент{% endif %}</span>
+          <span>{{ message.created_at|date:"d.m.Y H:i" }}</span>
+        </div>
+        <div class="thread__body">{{ message.body|linebreaksbr }}</div>
+      </div>
+    {% empty %}
+      <p class="muted">Сообщений пока нет. Задайте вопрос по работе — ответ появится здесь.</p>
+    {% endfor %}
+  </div>
+
+  <form class="form thread__form" method="post" action="{% url 'homework:post_message' submission.pk %}" novalidate>
+    {% csrf_token %}
+    {{ message_form.body }}
+    <button class="btn btn--sm" type="submit">Отправить</button>
+  </form>
+</div>

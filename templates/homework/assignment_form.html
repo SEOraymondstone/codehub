@@ -1,0 +1,43 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}{{ title }} — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container page-head__row">
+    <div>
+      <span class="section__kicker">// задание</span>
+      <h1>{{ title }}</h1>
+    </div>
+    <a class="btn btn--ghost btn--sm" href="{% url 'homework:manage_assignments' %}">К заданиям</a>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    <div class="form-card" style="max-width:760px">
+      <form class="form" method="post" novalidate>
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="form__error">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% include "partials/field.html" with field=form.module %}
+        {% include "partials/field.html" with field=form.title %}
+        {% include "partials/field.html" with field=form.description %}
+        <div class="form__row">
+          {% include "partials/field.html" with field=form.max_score %}
+          {% include "partials/field.html" with field=form.deadline %}
+        </div>
+        <div class="form__row">
+          {% include "partials/field.html" with field=form.order %}
+          <div class="form__field checkbox-row" style="align-self:end">
+            {{ form.is_published }}
+            <label for="{{ form.is_published.id_for_label }}">Опубликовать для студентов</label>
+          </div>
+        </div>
+        <button class="btn" type="submit">Сохранить задание</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

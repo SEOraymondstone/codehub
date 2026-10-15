@@ -1,0 +1,55 @@
+{% extends "base_cabinet.html" %}
+
+{% block title %}Мои задания — {{ site_info.name }}{% endblock %}
+
+{% block content %}
+<section class="page-head">
+  <div class="container page-head__row">
+    <div>
+      <span class="section__kicker">// домашние задания</span>
+      <h1>Мои задания</h1>
+      <p class="muted">Выберите задание, загрузите файл с решением и дождитесь проверки.</p>
+    </div>
+    <a class="btn btn--ghost btn--sm" href="{% url 'dashboard:student' %}">В кабинет</a>
+  </div>
+</section>
+
+<section class="section" style="padding-top:20px">
+  <div class="container">
+    {% if items %}
+      <div class="list">
+        {% for item in items %}
+          <article class="list-item">
+            <div class="list-item__head">
+              <h2 class="list-item__title">{{ item.assignment.title }}</h2>
+              <div class="list-item__flags">
+                {% if item.has_unread %}<span class="badge badge--unread">новое сообщение</span>{% endif %}
+                {% if item.submission.review %}
+                  <span class="badge badge--reviewed">проверено</span>
+                {% elif item.submission %}
+                  <span class="badge badge--submitted">{{ item.submission.get_status_display }}</span>
+                {% else %}
+                  <span class="badge badge--muted">не сдано</span>
+                {% endif %}
+              </div>
+            </div>
+            <div class="list-item__meta">
+              {% if item.assignment.module %}<span>модуль: {{ item.assignment.module.title }}</span>{% endif %}
+              <span>макс. балл: {{ item.assignment.max_score }}</span>
+              {% if item.assignment.deadline %}<span>дедлайн: {{ item.assignment.deadline|date:"d.m.Y H:i" }}</span>{% endif %}
+            </div>
+            <p class="muted">{{ item.assignment.description|truncatechars:180 }}</p>
+            <div class="hero__actions" style="margin:0">
+              <a class="btn btn--sm" href="{% url 'homework:assignment_detail' item.assignment.pk %}">
+                {% if item.submission %}Открыть работу{% else %}Сдать задание{% endif %}
+              </a>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="empty">Пока нет опубликованных заданий. Загляните позже.</div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

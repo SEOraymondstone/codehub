@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Как учиться — знакомство с платформой {{ site_info.name }}{% endblock %}
+{% block meta_description %}Пошаговое знакомство с платформой CodeHub: регистрация, личный кабинет, сдача домашних заданий, проверка, баллы и обратная связь.{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/public-dark.css' %}">
+{% endblock %}
+
+{% block body_class %}theme-public theme-public--dark{% endblock %}
+
+{% block content %}
+<!-- ============================ HERO ============================ -->
+<section class="hero">
+  <div class="container">
+    <span class="eyebrow">Знакомство с платформой</span>
+    <h1>Как учиться в {{ site_info.name }}</h1>
+    <p class="hero__lead">
+      Короткая инструкция для ученика и родителей: что происходит после заявки,
+      где сдавать домашние задания и как получить обратную связь преподавателя.
+    </p>
+    <div class="hero__actions">
+      <a class="btn" href="{% url 'pages:landing' %}#hero-form">Оставить заявку</a>
+      {% if user.is_authenticated %}
+        <a class="btn btn--ghost" href="{% url 'dashboard:home' %}">Перейти в кабинет</a>
+      {% else %}
+        <a class="btn btn--ghost" href="{% url 'accounts:login' %}">Войти в кабинет</a>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ============================= ШАГИ ============================= -->
+<section class="section section--tint">
+  <div class="container">
+    <div class="section__head center">
+      <span class="section__kicker">Пошагово</span>
+      <h2>Путь от заявки до проверенной работы</h2>
+      <p class="muted">Шесть простых шагов — ничего лишнего.</p>
+    </div>
+
+    <div class="grid">
+      <article class="module">
+        <div class="module__index">01</div>
+        <div>
+          <span class="guide-step__tag">Заявка</span>
+          <h3>Оставьте заявку</h3>
+          <p class="muted">Заполните короткую форму на главной странице — организатор свяжется и расскажет о ближайшем потоке, расписании и стоимости.</p>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module__index">02</div>
+        <div>
+          <span class="guide-step__tag">Личный кабинет</span>
+          <h3>Зарегистрируйтесь и войдите</h3>
+          <p class="muted">После регистрации открывается личный кабинет: прогресс курса, список заданий и подсказка «Что дальше» на самом верху.</p>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module__index">03</div>
+        <div>
+          <span class="guide-step__tag">Домашнее задание</span>
+          <h3>Загрузите решение</h3>
+          <p class="muted">Откройте задание и прикрепите файл с работой — архив, код, документ или изображение. Поддерживаются файлы до {{ homework_max_upload }}.</p>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module__index">04</div>
+        <div>
+          <span class="guide-step__tag">Проверка</span>
+          <h3>Дождитесь проверки</h3>
+          <p class="muted">Преподаватель смотрит работу, ставит балл и пишет разбор кода. Результат появляется прямо в карточке задания.</p>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module__index">05</div>
+        <div>
+          <span class="guide-step__tag">Обратная связь</span>
+          <h3>Задайте вопрос преподавателю</h3>
+          <p class="muted">Под каждой работой есть обсуждение. Можно спросить, что непонятно, и получить ответ — новые сообщения подсвечиваются.</p>
+        </div>
+      </article>
+
+      <article class="module">
+        <div class="module__index">06</div>
+        <div>
+          <span class="guide-step__tag">Доработка</span>
+          <h3>Исправьте и сдайте снова</h3>
+          <p class="muted">Если работа отправлена на доработку, исправьте замечания и загрузите новую версию — оценка обновится после повторной проверки.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== РОДИТЕЛЯМ / ТРЕБОВАНИЯ ====================== -->
+<section class="section">
+  <div class="container">
+    <div class="grid grid--2">
+      <article class="card">
+        <div class="card__icon">Р</div>
+        <h3>Родителям</h3>
+        <ul class="hero__points" style="margin-top:14px">
+          <li>Прогресс, баллы и комментарии преподавателя видны в кабинете ученика.</li>
+          <li>Домашние задания проверяет преподаватель, а не автоматическая система.</li>
+          <li>Занятия проходят два раза в неделю, записи уроков остаются в доступе.</li>
+          <li>Связаться с организатором можно по телефону, email или в мессенджере.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <div class="card__icon">Т</div>
+        <h3>Что понадобится</h3>
+        <ul class="hero__points" style="margin-top:14px">
+          <li>Ноутбук или компьютер с выходом в интернет.</li>
+          <li>Современный браузер: Chrome, Firefox, Safari или Edge.</li>
+          <li>Бесплатное программное обеспечение — поможем установить на первом уроке.</li>
+          <li>Файлы решений размером до {{ homework_max_upload }}.</li>
+        </ul>
+        <p class="guide-note">
+          Возникли сложности со входом или загрузкой файла? Напишите организатору:
+          <a href="mailto:{{ site_info.email }}">{{ site_info.email }}</a> или
+          <a href="tel:{{ site_info.phone }}">{{ site_info.phone }}</a>.
+        </p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================== CTA ============================== -->
+<section class="section section--tint">
+  <div class="container">
+    <div class="card center" style="padding:44px">
+      <h2>Готовы начать?</h2>
+      <p class="muted">Оставьте заявку или сразу создайте личный кабинет — это займёт пару минут.</p>
+      <div class="hero__actions" style="justify-content:center;margin-bottom:0">
+        <a class="btn" href="{% url 'pages:landing' %}#hero-form">Оставить заявку</a>
+        {% if user.is_authenticated %}
+          <a class="btn btn--ghost" href="{% url 'dashboard:home' %}">Личный кабинет</a>
+        {% else %}
+          <a class="btn btn--ghost" href="{% url 'accounts:register' %}">Создать кабинет</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
